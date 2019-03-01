@@ -87,11 +87,11 @@ void handleWebRequest() {
 				Serial.print("HTTP Resource: ");
 				Serial.println(resource);
 
-				Serial.print("HTTP Resource: ");
-				Serial.println(resource);
+				Serial.print("Param1: ");
+				Serial.println(param1);
 
-				Serial.print("HTTP Resource: ");
-				Serial.println(resource);
+				Serial.print("Param2: ");
+				Serial.println(param2);
 
 				String jsonOut = String();
 
