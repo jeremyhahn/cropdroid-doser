@@ -12,6 +12,9 @@ void handleWebRequest();
 void sendHtmlHeader();
 void send404();
 void send500(String message);
+void(* resetFunc) (void) = 0;
+
+unsigned long lastEvent;
 
 int main(void) {
   init();
@@ -26,7 +29,7 @@ int main(void) {
 void setup(void) {
 
   Serial.begin(115200);
-  Serial.println("Initializing controller...");
+  Serial.println("Initializing nutrients controller...");
 
   analogReference(DEFAULT);
 
@@ -54,6 +57,7 @@ void handleWebRequest() {
 
 	char clientline[BUFSIZE];
 	int index = 0;
+	bool reset = false;
 
 	if (httpClient) {
 
@@ -100,7 +104,7 @@ void handleWebRequest() {
 
 					jsonOut += "{";
 						jsonOut += "\"uptime\":\"" + String(millis()) + "\", ";
-						jsonOut += "\"alive\":\"" + String("true") + "\" ";
+						jsonOut += "\"lastEvent\":\"" + String(lastEvent) + "\" ";
 					jsonOut += "}";
 				}
 				// /dispense
@@ -109,6 +113,7 @@ void handleWebRequest() {
 						send500("parameter required");
 						break;
 					}
+					lastEvent = millis();
 					int channel = atoi(param1);
 					int duration = atoi(param2);
 					if(duration > 0) {
@@ -126,6 +131,13 @@ void handleWebRequest() {
 						jsonOut += "\"channel\":\"" + String(channel) + "\", ";
 						jsonOut += "\"duration\":\"" + String(duration) + "\" ";
 					jsonOut += "}";
+				}
+				else if (strncmp(resource, "reset", 5) == 0) {
+					Serial.println("Rebooting...");
+					jsonOut += "{";
+						jsonOut += "\"reset\":\"true\"";
+					jsonOut += "}";
+					reset = true;
 				}
 				else {
 					send404();
@@ -149,6 +161,10 @@ void handleWebRequest() {
 
 	// close the connection:
 	httpClient.stop();
+
+	if(reset)  {
+	  resetFunc();
+	}
 }
 
 void sendHtmlHeader() {
