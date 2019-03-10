@@ -3,7 +3,7 @@
 
 #define BUFSIZE 255
 
-byte mac[] = { 0x90, 0xA2, 0xDA, 0x0E, 0xFE, 0x43 };
+byte mac[] = { 0x04, 0x02, 0x00, 0x00, 0x00, 0x03 };
 IPAddress ip(192,168,0,201);
 EthernetServer httpServer(80);
 EthernetClient httpClient;
@@ -29,7 +29,7 @@ int main(void) {
 void setup(void) {
 
   Serial.begin(115200);
-  Serial.println("Initializing nutrients controller...");
+  Serial.println("Initializing nute controller...");
 
   analogReference(DEFAULT);
 
