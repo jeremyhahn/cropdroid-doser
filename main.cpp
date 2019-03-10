@@ -14,7 +14,12 @@ void send404();
 void send500(String message);
 void(* resetFunc) (void) = 0;
 
-unsigned long lastEvent;
+const int channel_size = 6;
+int valid_channels[channel_size] = {2, 5, 6, 7, 8, 9};
+
+int doseChannel = 0;
+unsigned long doseStart, doseStop = 0;
+long doseInterval = 0;
 
 int main(void) {
   init();
@@ -32,6 +37,12 @@ void setup(void) {
   Serial.println("Initializing nute controller...");
 
   analogReference(DEFAULT);
+
+
+  for(int i=0; i<channel_size; i++) {
+	  pinMode(valid_channels[i], OUTPUT);
+	  digitalWrite(valid_channels[i], LOW);
+  }
 
   if(Ethernet.begin(mac) == 0) {
     Serial.println("DHCP failed");
@@ -52,6 +63,27 @@ void loop() {
 }
 
 void handleWebRequest() {
+
+	unsigned long currentMillis = millis();
+
+	if(doseInterval > 0) {
+		if(currentMillis - doseStart > doseInterval) {
+			doseStop = currentMillis;
+
+			Serial.print("Turning off dosing pump on channel ");
+			Serial.print(doseChannel);
+			Serial.print(" after ");
+			Serial.print(doseInterval / 1000);
+			Serial.println(" seconds");
+
+			digitalWrite(doseChannel, LOW);
+
+			doseChannel = 0;
+			doseStart = 0;
+			doseStop = 0;
+			doseInterval = 0;
+		}
+	}
 
 	httpClient = httpServer.available();
 
@@ -101,32 +133,43 @@ void handleWebRequest() {
 
 				// /status
 				if (strncmp(resource, "status", 6) == 0) {
-
 					jsonOut += "{";
 						jsonOut += "\"uptime\":\"" + String(millis()) + "\", ";
-						jsonOut += "\"lastEvent\":\"" + String(lastEvent) + "\" ";
+						for(int i=0; i<channel_size; i++) {
+							jsonOut += "\"channel" + String(valid_channels[i]) + "\":\"" + String(digitalRead(valid_channels[i])) + "\", ";
+						}
+						jsonOut += "\"channel\":\"" + String(doseChannel) + "\", ";
+						jsonOut += "\"start\":\"" + String(doseStart) + "\", ";
+						jsonOut += "\"stop\":\"" + String(doseStop) + "\", ";
+						jsonOut += "\"interval\":\"" + String(doseInterval) + "\" ";
+
 					jsonOut += "}";
 				}
 				// /dispense
 				else if (strncmp(resource, "dispense", 8) == 0) {
-					if(param1 == NULL) {
+
+					if(param1 == NULL || param1 == "") {
 						send500("parameter required");
 						break;
 					}
-					lastEvent = millis();
+
 					int channel = atoi(param1);
 					int duration = atoi(param2);
+
 					if(duration > 0) {
+
 						Serial.print("Channel: ");
 						Serial.println(channel);
+
 						Serial.print("Duration: ");
 						Serial.println(duration);
-						pinMode(channel, OUTPUT);
+
 						digitalWrite(channel, HIGH);
-						delay(duration * 1000);
+
+						doseInterval = duration * 1000;
+						doseChannel = channel;
+						doseStart = millis();
 					}
-					Serial.println("Going LOW");
-					digitalWrite(channel, LOW);
 					jsonOut += "{";
 						jsonOut += "\"channel\":\"" + String(channel) + "\", ";
 						jsonOut += "\"duration\":\"" + String(duration) + "\" ";
