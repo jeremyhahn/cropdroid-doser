@@ -1,12 +1,12 @@
 # harvest-nutes
 
-Nutrient controller for the Harvest automation system.
+Dosing / nutrient controller for the CropDroid automation system.
 
 # PIN Usage
 
 ## Usable
 
-Nutrient pumps can be operated on digital pins 02, 03, 05, 06, 07, 08, 09.
+Dosing pumps can be operated on digital pins 02, 03, 05, 06, 07, 08, 09.
 
 ## Reserved
 

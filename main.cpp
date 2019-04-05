@@ -13,7 +13,7 @@ extern int  *__brkval;
 const char json_bracket_open[] = "{";
 const char json_bracket_close[] = "}";
 
-const char string_initializing[] PROGMEM = "Initializing nutrient controller...";
+const char string_initializing[] PROGMEM = "Initializing dosing controller...";
 const char string_dhcp_failed[] PROGMEM = "DHCP Failed";
 const char string_http_200[] PROGMEM = "HTTP/1.1 200 OK";
 const char string_http_404[] PROGMEM = "HTTP/1.1 404 Not Found";
