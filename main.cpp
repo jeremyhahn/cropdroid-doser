@@ -1,5 +1,6 @@
 #include <Arduino.h>
 #include <Ethernet.h>
+#include <stdlib.h>
 #include "EEPROM.h"
 
 #define DEBUG 1
@@ -230,6 +231,7 @@ void handleWebRequest() {
 	for(int i=0; i<channel_size; i++) {
 		if(channel_table[i][0] != NULL_CHANNEL) {
 			if(currentMillis - channel_table[i][1] > channel_table[i][2]) {
+
 				digitalWrite(channel_table[i][0], LOW);
 
 				#if DEBUG
@@ -373,7 +375,7 @@ void handleWebRequest() {
 					}
 
 					int channel = atoi(param1);
-					int duration = atoi(param2);
+					unsigned long duration = strtoul(param2, NULL, 10);
 
 					if(channel > 0 && duration > 0) {
 
