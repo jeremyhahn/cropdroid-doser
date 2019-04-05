@@ -112,17 +112,8 @@ const uint8_t channels[channel_size] = {
 	//19, 20, 21, 22, 23, 24, 25, 26
 };
 
-/*
-struct dose {
-	int channel;
-	unsigned long start;
-	long interval;
-};
-struct dose doseTable[channel_size];
-*/
-
-// channel, start, interval
 unsigned long channel_table[channel_size][3] = {
+	// channel, start, interval
    {NULL_CHANNEL, 0, 0},
    {NULL_CHANNEL, 0, 0},
    {NULL_CHANNEL, 0, 0},
@@ -165,11 +156,6 @@ void setup(void) {
   for(int i=0; i<channel_size; i++) {
     pinMode(channels[i], OUTPUT);
     digitalWrite(channels[i], LOW);
-	/*
-    doseTable[i].channel = NULL_CHANNEL;
-    doseTable[i].start = 0;
-    doseTable[i].interval = 0;
-    */
   }
 
   byte macByte1 = EEPROM.read(0);
@@ -246,18 +232,16 @@ void handleWebRequest() {
 			if(currentMillis - channel_table[i][1] > channel_table[i][2]) {
 				digitalWrite(channel_table[i][0], LOW);
 
-				Serial.print("Shutdown: ");
-				Serial.println(channel_table[i][0]);
-
-/*
 				#if DEBUG
 				  Serial.print("Turning channel ");
-				  Serial.println(channel_table[i][0]);
-				  Serial.print(" off after ");
+				  Serial.print(i);
+				  Serial.print(" (pin ");
+				  Serial.print(channel_table[i][0]);
+				  Serial.print(") off after ");
 				  Serial.print(channel_table[i][2] / 1000);
 				  Serial.println(" seconds");
 				#endif
-*/
+
 				channel_table[i][0] = NULL_CHANNEL;
 				channel_table[i][1] = 0;
 				channel_table[i][2] = 0;
@@ -397,16 +381,15 @@ void handleWebRequest() {
 						  Serial.print("Channel: ");
 						  Serial.println(channel);
 
-						  //Serial.print("Duration: ");
-                          //Serial.println(duration);
+						  Serial.print("Duration: ");
+                          Serial.println(duration);
 						#endif
 
-
                         if(channel > 0 && duration > 0) {
-                        	channel_table[channel][0] = channel;
+                        	channel_table[channel][0] = channels[channel];
                         	channel_table[channel][1] = millis();
                         	channel_table[channel][2] = duration * 1000;
-                            digitalWrite(channel, HIGH);
+                            digitalWrite(channels[channel], HIGH);
                         }
                         else {
 							#if DEBUG
