@@ -86,7 +86,7 @@ void resetDefaults();
 int availableMemory();
 void(* resetFunc) (void) = 0;
 
-byte defaultMac[] = { 0x04, 0x02, 0x00, 0x01, 0x00, 0x03 };
+byte defaultMac[] = { 0x04, 0x02, 0x00, 0x00, 0x00, 0x03 };
 
 byte mac[] = {
 	EEPROM.read(0),
