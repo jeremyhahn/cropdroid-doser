@@ -377,7 +377,7 @@ void handleWebRequest() {
 					int channel = atoi(param1);
 					unsigned long duration = strtoul(param2, NULL, 10);
 
-					if(channel > 0 && duration > 0) {
+					if(channel >= 0 && channel < (channel_size -1) && duration > 0) {
 
 						#if DEBUG
 						  Serial.print("Channel: ");
@@ -387,17 +387,16 @@ void handleWebRequest() {
                           Serial.println(duration);
 						#endif
 
-                        if(channel > 0 && duration > 0) {
-                        	channel_table[channel][0] = channels[channel];
-                        	channel_table[channel][1] = millis();
-                        	channel_table[channel][2] = duration * 1000;
-                            digitalWrite(channels[channel], HIGH);
-                        }
-                        else {
-							#if DEBUG
-							  Serial.println("Invalid channel/duration");
-							#endif
-						}
+						channel_table[channel][0] = channels[channel];
+						channel_table[channel][1] = millis();
+						channel_table[channel][2] = duration * 1000;
+
+						digitalWrite(channels[channel], HIGH);
+					}
+                    else {
+					  #if DEBUG
+					    Serial.println("Invalid channel/duration");
+					  #endif
 					}
 
 					strcpy(json, "{");
