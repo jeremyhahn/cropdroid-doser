@@ -412,10 +412,30 @@ void handleWebRequest() {
 					strcat(json, "}");
 				}
 
+				// /stop
+				else if (strncmp(resource, "stop", 4) == 0) {
+					#if DEBUG
+					  Serial.println("/stop");
+					#endif
+
+					int channel = atoi(param1);
+					digitalWrite(channels[channel], LOW);
+
+					strcpy(json, "{");
+
+						strcat(json, "\"channel\":");
+						itoa(channel, float_buffer, 10);
+						strcat(json, float_buffer);
+
+						strcat(json, ",\"stopped\":true");
+
+					strcat(json, "}");
+				}
+
 				// /reboot
 				else if (strncmp(resource, "reboot", 6) == 0) {
 					#if DEBUG
-					  Serial.println("Rebooting");
+					  Serial.println("/reboot");
 					#endif
 					strcpy(json, "{\"reboot\":true}");
 					reboot = true;
