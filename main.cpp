@@ -427,7 +427,7 @@ void handleWebRequest() {
 						itoa(channel, float_buffer, 10);
 						strcat(json, float_buffer);
 
-						strcat(json, ",\"stopped\":true");
+						strcat(json, ",\"duration\":0");
 
 					strcat(json, "}");
 				}
