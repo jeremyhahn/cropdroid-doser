@@ -365,7 +365,7 @@ void handleWebRequest() {
 					strcat(json, json_bracket_close);
 				}
 
-				// /dispense
+				// /dispense/{channel}/{seconds}
 				else if (strncmp(resource, "dispense", 8) == 0) {
 
 					if(param1 == NULL || param1 == "") {
@@ -412,7 +412,7 @@ void handleWebRequest() {
 					strcat(json, "}");
 				}
 
-				// /stop
+				// /stop/{channel}
 				else if (strncmp(resource, "stop", 4) == 0) {
 					#if DEBUG
 					  Serial.println("/stop");
