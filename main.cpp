@@ -3,7 +3,7 @@
 #include <stdlib.h>
 #include "EEPROM.h"
 
-#define DEBUG 1
+#define DEBUG 0
 #define EEPROM_DEBUG 0
 #define BUFSIZE 255
 
@@ -26,6 +26,8 @@ const char string_switch_off[] PROGMEM = "Switching off";
 const char string_json_key_mem[] PROGMEM = "\"mem\":";
 const char string_json_key_uptime[] PROGMEM = ",\"uptime\":";
 const char string_json_key_channels[] PROGMEM = ",\"channels\":{";
+const char string_json_key_pin[] PROGMEM = "\"pin\":";
+const char string_json_key_position[] PROGMEM =  ",\"position\":";
 const char string_json_key_value[] PROGMEM =  ",\"value\":";
 const char string_json_key_address[] PROGMEM =  "\"address\":";
 const char string_json_bracket_open[] PROGMEM = "{";
@@ -47,6 +49,8 @@ const char * const string_table[] PROGMEM = {
   string_json_key_mem,
   string_json_key_uptime,
   string_json_key_channels,
+  string_json_key_pin,
+  string_json_key_position,
   string_json_key_value,
   string_json_key_address,
   string_json_bracket_open,
@@ -68,13 +72,15 @@ int idx_initializing = 0,
 	idx_json_key_mem = 10,
 	idx_json_key_uptime = 11,
 	idx_json_key_channels = 12,
-	idx_json_key_value = 13,
-	idx_json_key_address = 14,
-	idx_json_key_bracket_open = 15,
-	idx_json_key_bracket_close = 16,
-	idx_json_error_invalid_channel = 17,
-	idx_json_reboot_true = 18,
-	idx_json_reset_true = 19;
+	idx_json_key_pin = 13,
+	idx_json_key_position = 14,
+	idx_json_key_value = 15,
+	idx_json_key_address = 16,
+	idx_json_key_bracket_open = 17,
+	idx_json_key_bracket_close = 18,
+	idx_json_error_invalid_channel = 19,
+	idx_json_reboot_true = 20,
+	idx_json_reset_true = 21;
 char string_buffer[50];
 char float_buffer[10];
 
@@ -307,18 +313,6 @@ void handleWebRequest() {
 					  strcat(json, string_buffer);
 					  itoa(availableMemory(), float_buffer, 10);
 					  strcat(json, float_buffer);
-/*
-					  strcpy_P(string_buffer, (char*)pgm_read_word(&(string_table[idx_json_key_uptime])));
-					  strcat(json, string_buffer);
-					  itoa(millis(), float_buffer, 10);
-					  strcat(json, float_buffer);
-
-					  strcpy_P(string_buffer, (char*)pgm_read_word(&(string_table[idx_json_key_uptime])));
-					  strcat(json, string_buffer);
-					  int uptime = snprintf(NULL, 0, "%llu", millis());
-					  itoa(uptime, float_buffer, 10);
-					  strcat(json, float_buffer);
-*/
 
 					  strcpy_P(string_buffer, (char*)pgm_read_word(&(string_table[idx_json_key_channels])));
 					  strcat(json, string_buffer);
@@ -412,24 +406,42 @@ void handleWebRequest() {
 					strcat(json, "}");
 				}
 
-				// /stop/{channel}
-				else if (strncmp(resource, "stop", 4) == 0) {
-					#if DEBUG
-					  Serial.println("/stop");
-					#endif
+				// /switch/{channel}/{position}     1 = on, else off
+				else if (strncmp(resource, "switch", 7) == 0) {
 
+					bool valid = false;
 					int channel = atoi(param1);
-					digitalWrite(channels[channel], LOW);
+					int position = atoi(param2);
 
-					strcpy(json, "{");
+					if(channel >= 0 && channel < (channel_size-1)) {
+						valid = true;
+					}
 
-						strcat(json, "\"channel\":");
-						itoa(channel, float_buffer, 10);
-						strcat(json, float_buffer);
+					if(valid) {
 
-						strcat(json, ",\"duration\":0");
+						strcpy(json, json_bracket_open);
 
-					strcat(json, "}");
+						  strcpy_P(string_buffer, (char*)pgm_read_word(&(string_table[idx_json_key_pin])));
+						  strcat(json, string_buffer);
+						  strcat(json, param1);
+
+						  strcpy_P(string_buffer, (char*)pgm_read_word(&(string_table[idx_json_key_position])));
+						  strcat(json, string_buffer);
+						  strcat(json, param2);
+
+						strcat(json, json_bracket_close);
+
+						#if DEBUG
+							Serial.print("/switch: ");
+							Serial.println(json);
+						#endif
+
+						position == 1 ? switchOn(channels[channel]) : switchOff(channels[channel]);
+					}
+					else {
+						strcpy_P(string_buffer, (char*)pgm_read_word(&(string_table[idx_json_error_invalid_channel])));
+						strcat(json, string_buffer);
+					}
 				}
 
 				// /reboot
