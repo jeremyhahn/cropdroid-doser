@@ -4,7 +4,7 @@
 #include "EEPROM.h"
 
 #define DEBUG 0
-#define EEPROM_DEBUG 0
+#define EEPROM_DEBUG 1
 #define BUFSIZE 255
 
 extern int  __bss_end;
@@ -150,6 +150,8 @@ int main(void) {
 }
 
 void setup(void) {
+
+  //EEPROM.write(0, 255);
 
   #if DEBUG || EEPROM_DEBUG
 	Serial.begin(115200);
@@ -517,6 +519,9 @@ void send404() {
 }
 
 void resetDefaults() {
+#if DEBUG
+  Serial.println("resetting");
+#endif
 	EEPROM.write(0, defaultMac[0]);
 	EEPROM.write(1, defaultMac[1]);
 	EEPROM.write(2, defaultMac[2]);
