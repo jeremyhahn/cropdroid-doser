@@ -1,0 +1,8 @@
+(fp_lib_table
+  (lib (name 3-213598-2)(type KiCad)(uri ${KIPRJMOD}/libraries/3-213598-2)(options "")(descr ""))
+  (lib (name QUALTEK_703W-00)(type KiCad)(uri ${KIPRJMOD}/libraries/703W-00_52/QUALTEK_703W-00)(options "")(descr ""))
+  (lib (name IRM-30-12)(type KiCad)(uri ${KIPRJMOD}/libraries/IRM-30-12)(options "")(descr ""))
+  (lib (name PPTC151LFBN-RC)(type KiCad)(uri ${KIPRJMOD}/libraries/PPTC151LFBN-RC)(options "")(descr ""))
+  (lib (name T9AS1D12-15)(type KiCad)(uri ${KIPRJMOD}/libraries/T9AS1D12-15)(options "")(descr ""))
+  (lib (name libraries)(type KiCad)(uri ${KIPRJMOD}/libraries)(options "")(descr ""))
+)
