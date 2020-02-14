@@ -6,7 +6,7 @@ encoding utf-8
 Sheet 1 1
 Title "CropDroid Doser"
 Date "2020-02-04"
-Rev "0.1a"
+Rev "0.2a"
 Comp "Automate The Things, LLC"
 Comment1 ""
 Comment2 ""
@@ -1672,21 +1672,11 @@ Wire Wire Line
 Wire Wire Line
 	11450 2300 11250 2300
 Wire Wire Line
-	9750 4200 11500 4200
-Wire Wire Line
-	11500 4200 11500 2200
-Wire Wire Line
 	11500 2200 11250 2200
-Wire Wire Line
-	9150 4350 11550 4350
-Wire Wire Line
-	11550 4350 11550 2100
 Wire Wire Line
 	11550 2100 11250 2100
 Wire Wire Line
-	8500 4400 9050 4400
-Wire Wire Line
-	11600 4400 11600 2000
+	11600 4050 11600 2000
 Wire Wire Line
 	11600 2000 11250 2000
 $Comp
@@ -2055,35 +2045,15 @@ Wire Wire Line
 Wire Wire Line
 	4000 2550 4650 2550
 Wire Wire Line
-	4600 2450 4600 5500
-Wire Wire Line
 	4550 4050 5300 4050
-Wire Wire Line
-	5300 4050 5300 4700
-Wire Wire Line
-	5900 4000 5900 5500
 Wire Wire Line
 	4500 4000 5900 4000
 Wire Wire Line
-	6600 3950 6600 4700
-Wire Wire Line
 	4450 3950 6600 3950
-Wire Wire Line
-	7200 3900 7200 5500
 Wire Wire Line
 	4400 3900 7200 3900
 Wire Wire Line
-	7900 3850 7900 4700
-Wire Wire Line
 	4350 3850 7900 3850
-Wire Wire Line
-	8500 4400 8500 5500
-Wire Wire Line
-	9150 4350 9150 4700
-Wire Wire Line
-	9750 4200 9750 5500
-Wire Wire Line
-	4000 2550 4000 4700
 Wire Wire Line
 	3900 4700 3900 4150
 Wire Wire Line
@@ -2120,22 +2090,12 @@ Wire Wire Line
 	8400 5500 8400 4150
 Connection ~ 8400 4150
 Wire Wire Line
-	8400 4150 9450 4150
+	8400 4150 9050 4150
 Wire Wire Line
 	7800 4700 7800 4150
 Connection ~ 7800 4150
 Wire Wire Line
 	7800 4150 8400 4150
-Wire Wire Line
-	9050 4700 9050 4400
-Connection ~ 9050 4400
-Wire Wire Line
-	9050 4400 9650 4400
-Wire Wire Line
-	9650 5500 9650 4400
-Connection ~ 9650 4400
-Wire Wire Line
-	9650 4400 11600 4400
 $Comp
 L power:GND #PWR02
 U 1 1 5E53A4F4
@@ -2333,4 +2293,44 @@ Wire Wire Line
 Connection ~ 10250 6800
 Wire Wire Line
 	10250 6800 12600 6800
+Wire Wire Line
+	9050 4150 9050 4700
+Connection ~ 9050 4150
+Wire Wire Line
+	9050 4150 9450 4150
+Wire Wire Line
+	9650 4150 9450 4150
+Wire Wire Line
+	9650 4150 9650 5500
+Connection ~ 9450 4150
+Wire Wire Line
+	11500 3950 8500 3950
+Wire Wire Line
+	11500 2200 11500 3950
+Wire Wire Line
+	11550 4000 9150 4000
+Wire Wire Line
+	11550 2100 11550 4000
+Wire Wire Line
+	11600 4050 9750 4050
+Wire Wire Line
+	9750 4050 9750 5500
+Wire Wire Line
+	9150 4000 9150 4700
+Wire Wire Line
+	8500 3950 8500 5500
+Wire Wire Line
+	7900 3850 7900 4700
+Wire Wire Line
+	7200 3900 7200 5500
+Wire Wire Line
+	6600 3950 6600 4700
+Wire Wire Line
+	5900 4000 5900 5500
+Wire Wire Line
+	5300 4050 5300 4700
+Wire Wire Line
+	4600 2450 4600 5500
+Wire Wire Line
+	4000 2550 4000 4700
 $EndSCHEMATC
