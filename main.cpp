@@ -26,7 +26,8 @@ const char string_switch_off[] PROGMEM = "Switching off";
 const char string_json_key_mem[] PROGMEM = "\"mem\":";
 const char string_json_key_uptime[] PROGMEM = ",\"uptime\":";
 const char string_json_key_channels[] PROGMEM = ",\"channels\":{";
-const char string_json_key_pin[] PROGMEM = "\"pin\":";
+const char string_json_key_channel[] PROGMEM = "\"channel\":";
+const char string_json_key_pin[] PROGMEM = ",\"pin\":";
 const char string_json_key_position[] PROGMEM =  ",\"position\":";
 const char string_json_key_value[] PROGMEM =  ",\"value\":";
 const char string_json_key_address[] PROGMEM =  "\"address\":";
@@ -49,6 +50,7 @@ const char * const string_table[] PROGMEM = {
   string_json_key_mem,
   string_json_key_uptime,
   string_json_key_channels,
+  string_json_key_channel,
   string_json_key_pin,
   string_json_key_position,
   string_json_key_value,
@@ -72,15 +74,16 @@ int idx_initializing = 0,
 	idx_json_key_mem = 10,
 	idx_json_key_uptime = 11,
 	idx_json_key_channels = 12,
-	idx_json_key_pin = 13,
-	idx_json_key_position = 14,
-	idx_json_key_value = 15,
-	idx_json_key_address = 16,
-	idx_json_key_bracket_open = 17,
-	idx_json_key_bracket_close = 18,
-	idx_json_error_invalid_channel = 19,
-	idx_json_reboot_true = 20,
-	idx_json_reset_true = 21;
+	idx_json_key_channel = 13,
+	idx_json_key_pin = 14,
+	idx_json_key_position = 15,
+	idx_json_key_value = 16,
+	idx_json_key_address = 17,
+	idx_json_key_bracket_open = 18,
+	idx_json_key_bracket_close = 19,
+	idx_json_error_invalid_channel = 20,
+	idx_json_reboot_true = 21,
+	idx_json_reset_true = 22;
 char string_buffer[50];
 char float_buffer[10];
 
@@ -421,28 +424,45 @@ void handleWebRequest() {
 
 					if(valid) {
 
-						strcpy(json, json_bracket_open);
+						bool valid = false;
+						int channel = atoi(param1);
+						int position = atoi(param2);
 
-						  strcpy_P(string_buffer, (char*)pgm_read_word(&(string_table[idx_json_key_pin])));
-						  strcat(json, string_buffer);
-						  strcat(json, param1);
+						if(channel >= 0 && channel < (channel_size-1)) {
+							valid = true;
+						}
 
-						  strcpy_P(string_buffer, (char*)pgm_read_word(&(string_table[idx_json_key_position])));
-						  strcat(json, string_buffer);
-						  strcat(json, param2);
+						if(valid) {
 
-						strcat(json, json_bracket_close);
+							position == 1 ? switchOn(channels[channel]) : switchOff(channels[channel]);
 
-						#if DEBUG
-							Serial.print("/switch: ");
-							Serial.println(json);
-						#endif
+							strcpy(json, json_bracket_open);
 
-						position == 1 ? switchOn(channels[channel]) : switchOff(channels[channel]);
-					}
-					else {
-						strcpy_P(string_buffer, (char*)pgm_read_word(&(string_table[idx_json_error_invalid_channel])));
-						strcat(json, string_buffer);
+							  strcpy_P(string_buffer, (char*)pgm_read_word(&(string_table[idx_json_key_channel])));
+							  strcat(json, string_buffer);
+							  strcat(json, param1);
+
+							  strcpy_P(string_buffer, (char*)pgm_read_word(&(string_table[idx_json_key_pin])));
+							  strcat(json, string_buffer);
+							  itoa(channels[channel], string_buffer, 10);
+							  strcat(json, string_buffer);
+
+							  strcpy_P(string_buffer, (char*)pgm_read_word(&(string_table[idx_json_key_position])));
+							  strcat(json, string_buffer);
+							  itoa(digitalRead(channels[channel]), string_buffer, 10);
+							  strcat(json, string_buffer);
+
+							strcat(json, json_bracket_close);
+
+							#if DEBUG
+								Serial.print("/switch: ");
+								Serial.println(json);
+							#endif
+						}
+						else {
+							strcpy_P(string_buffer, (char*)pgm_read_word(&(string_table[idx_json_error_invalid_channel])));
+							strcat(json, string_buffer);
+						}
 					}
 				}
 
