@@ -36,6 +36,8 @@ const char string_json_bracket_close[] PROGMEM = "}";
 const char string_json_error_invalid_channel[] PROGMEM = "{\"error\":\"Invalid channel\"}";
 const char string_json_reboot_true PROGMEM = "{\"reboot\":true}";
 const char string_json_reset_true PROGMEM = "{\"reset\":true}";
+const char string_hardware_version[] PROGMEM = "\"hardware\":\"doser-v0.5a\",";
+const char string_firmware_version[] PROGMEM = "\"firmware\":\"0.0.2a\"";
 const char * const string_table[] PROGMEM = {
   string_initializing,
   string_dhcp_failed,
@@ -59,7 +61,9 @@ const char * const string_table[] PROGMEM = {
   string_json_bracket_close,
   string_json_error_invalid_channel,
   string_json_reboot_true,
-  string_json_reset_true
+  string_json_reset_true,
+  string_hardware_version,
+  string_firmware_version
 };
 int idx_initializing = 0,
     idx_dhcp_failed = 1,
@@ -83,7 +87,9 @@ int idx_initializing = 0,
 	idx_json_key_bracket_close = 19,
 	idx_json_error_invalid_channel = 20,
 	idx_json_reboot_true = 21,
-	idx_json_reset_true = 22;
+	idx_json_reset_true = 22,
+	idx_hardware_version = 23,
+	idx_firmware_version = 24;
 char string_buffer[50];
 char float_buffer[10];
 
@@ -485,6 +491,20 @@ void handleWebRequest() {
 
 					strcpy_P(string_buffer, (char*)pgm_read_word(&(string_table[idx_json_reset_true])));
 					strcat(json, string_buffer);
+				}
+
+				// /sys
+				else if (strncmp(resource, "sys", 6) == 0) {
+
+					strcpy(json, json_bracket_open);
+
+						strcpy_P(string_buffer, (char*)pgm_read_word(&(string_table[idx_hardware_version])));
+						strcat(json, string_buffer);
+
+						strcpy_P(string_buffer, (char*)pgm_read_word(&(string_table[idx_firmware_version])));
+						strcat(json, string_buffer);
+
+					strcat(json, json_bracket_close);
 				}
 
 				else {
