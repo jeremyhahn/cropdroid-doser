@@ -13,6 +13,7 @@ extern int  *__brkval;
 
 const char json_bracket_open[] = "{";
 const char json_bracket_close[] = "}";
+const char json_array_bracket_close[] = "]";
 
 const char string_initializing[] PROGMEM = "Initializing dosing controller...";
 const char string_dhcp_failed[] PROGMEM = "DHCP Failed";
@@ -337,9 +338,9 @@ void handleWebRequest() {
 							  strcat(json, ",");
 						  }
 						}
-					  strcat(json, "]");
+					  strcat(json, json_array_bracket_close);
 
-					strcat(json, "}");
+					strcat(json, json_bracket_close);
 				}
 
 				// /eeprom
@@ -400,7 +401,7 @@ void handleWebRequest() {
 					  #endif
 					}
 
-					strcpy(json, "{");
+					strcpy(json, json_bracket_open);
 
 						strcat(json, "\"channel\":");
 						itoa(channel, float_buffer, 10);
@@ -410,7 +411,7 @@ void handleWebRequest() {
 						itoa(duration, float_buffer, 10);
 						strcat(json, float_buffer);
 
-					strcat(json, "}");
+					strcat(json, json_bracket_close);
 				}
 
 				// /switch/{channel}/{position}     1 = on, else off
