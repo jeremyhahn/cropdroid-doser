@@ -28,7 +28,7 @@ const char string_switch_on[] PROGMEM = "Switching on";
 const char string_switch_off[] PROGMEM = "Switching off";
 const char string_json_key_mem[] PROGMEM = "\"mem\":";
 const char string_json_key_uptime[] PROGMEM = ",\"uptime\":";
-const char string_json_key_metrics[] PROGMEM = "\"metrics\":[";
+const char string_json_key_metrics[] PROGMEM = "\"metrics\":{";
 const char string_json_key_channels[] PROGMEM = ",\"channels\":[";
 const char string_json_key_channel[] PROGMEM = "\"channel\":";
 const char string_json_key_pin[] PROGMEM = ",\"pin\":";
@@ -324,13 +324,12 @@ void handleWebRequest() {
 					  strcpy_P(string_buffer, (char*)pgm_read_word(&(string_table[idx_json_key_metrics])));
 					  strcat(json, string_buffer);
 
-					    strcat(json, json_bracket_open);
 					    strcpy_P(string_buffer, (char*)pgm_read_word(&(string_table[idx_json_key_mem])));
 					    strcat(json, string_buffer);
 					    itoa(availableMemory(), float_buffer, 10);
 					    strcat(json, float_buffer);
-					    strcat(json, json_bracket_close);
-					  strcat(json, json_array_bracket_close);
+
+					  strcat(json, json_bracket_close);
 
 					  strcpy_P(string_buffer, (char*)pgm_read_word(&(string_table[idx_json_key_channels])));
 					  strcat(json, string_buffer);
