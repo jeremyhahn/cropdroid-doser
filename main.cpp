@@ -14,6 +14,7 @@ extern int  *__brkval;
 const char json_bracket_open[] = "{";
 const char json_bracket_close[] = "}";
 const char json_array_bracket_close[] = "]";
+const char json_comma[] = ",";
 
 const char string_initializing[] PROGMEM = "Initializing dosing controller...";
 const char string_dhcp_failed[] PROGMEM = "DHCP Failed";
@@ -27,6 +28,7 @@ const char string_switch_on[] PROGMEM = "Switching on";
 const char string_switch_off[] PROGMEM = "Switching off";
 const char string_json_key_mem[] PROGMEM = "\"mem\":";
 const char string_json_key_uptime[] PROGMEM = ",\"uptime\":";
+const char string_json_key_metrics[] PROGMEM = "\"metrics\":[";
 const char string_json_key_channels[] PROGMEM = ",\"channels\":[";
 const char string_json_key_channel[] PROGMEM = "\"channel\":";
 const char string_json_key_pin[] PROGMEM = ",\"pin\":";
@@ -53,6 +55,7 @@ const char * const string_table[] PROGMEM = {
   string_switch_off,
   string_json_key_mem,
   string_json_key_uptime,
+  string_json_key_metrics,
   string_json_key_channels,
   string_json_key_channel,
   string_json_key_pin,
@@ -79,19 +82,20 @@ int idx_initializing = 0,
 	idx_switch_off = 9,
 	idx_json_key_mem = 10,
 	idx_json_key_uptime = 11,
-	idx_json_key_channels = 12,
-	idx_json_key_channel = 13,
-	idx_json_key_pin = 14,
-	idx_json_key_position = 15,
-	idx_json_key_value = 16,
-	idx_json_key_address = 17,
-	idx_json_key_bracket_open = 18,
-	idx_json_key_bracket_close = 19,
-	idx_json_error_invalid_channel = 20,
-	idx_json_reboot_true = 21,
-	idx_json_reset_true = 22,
-	idx_hardware_version = 23,
-	idx_firmware_version = 24;
+	idx_json_key_metrics = 12,
+	idx_json_key_channels = 13,
+	idx_json_key_channel = 14,
+	idx_json_key_pin = 15,
+	idx_json_key_position = 16,
+	idx_json_key_value = 17,
+	idx_json_key_address = 18,
+	idx_json_key_bracket_open = 19,
+	idx_json_key_bracket_close = 20,
+	idx_json_error_invalid_channel = 21,
+	idx_json_reboot_true = 22,
+	idx_json_reset_true = 23,
+	idx_hardware_version = 24,
+	idx_firmware_version = 25;
 char string_buffer[50];
 char float_buffer[10];
 
@@ -312,33 +316,32 @@ void handleWebRequest() {
 				  Serial.println(param2);
 				#endif
 
-				// /status
-				if (strncmp(resource, "status", 6) == 0) {
+				// /state
+				if (strncmp(resource, "state", 6) == 0) {
 
-					strcpy(json, "{");
+					strcpy(json, json_bracket_open);
 
-					  strcpy_P(string_buffer, (char*)pgm_read_word(&(string_table[idx_json_key_mem])));
+					  strcpy_P(string_buffer, (char*)pgm_read_word(&(string_table[idx_json_key_metrics])));
 					  strcat(json, string_buffer);
-					  itoa(availableMemory(), float_buffer, 10);
-					  strcat(json, float_buffer);
+
+					    strcat(json, json_bracket_open);
+					    strcpy_P(string_buffer, (char*)pgm_read_word(&(string_table[idx_json_key_mem])));
+					    strcat(json, string_buffer);
+					    itoa(availableMemory(), float_buffer, 10);
+					    strcat(json, float_buffer);
+					    strcat(json, json_bracket_close);
+					  strcat(json, json_array_bracket_close);
 
 					  strcpy_P(string_buffer, (char*)pgm_read_word(&(string_table[idx_json_key_channels])));
 					  strcat(json, string_buffer);
 						for(int i=0; i<CHANNEL_SIZE; i++) {
-						  //itoa(channels[i], sPin, 10);
 						  itoa(digitalRead(channels[i]), state, 10);
-/*
-						  strcat(json, "\"");
-						  itoa(i, float_buffer, 10);
-						  strcat(json, float_buffer);
-						  strcat(json, "\":");
-*/
 						  strcat(json, state);
 						  if(i + 1 < CHANNEL_SIZE) {
-							  strcat(json, ",");
+						    strcat(json, ",");
 						  }
 						}
-					  strcat(json, json_array_bracket_close);
+				      strcat(json, json_array_bracket_close);
 
 					strcat(json, json_bracket_close);
 				}
@@ -367,8 +370,8 @@ void handleWebRequest() {
 					strcat(json, json_bracket_close);
 				}
 
-				// /dispense/{channel}/{seconds}
-				else if (strncmp(resource, "dispense", 8) == 0) {
+				// /timer/{channel}/{seconds}
+				else if (strncmp(resource, "timer", 8) == 0) {
 
 					if(param1 == NULL || param1 == "") {
 						Serial.println("parameter required");
