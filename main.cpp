@@ -317,7 +317,7 @@ void handleWebRequest() {
 				#endif
 
 				// /state
-				if (strncmp(resource, "state", 6) == 0) {
+				if (strncmp(resource, "state", 5) == 0) {
 
 					strcpy(json, json_bracket_open);
 
@@ -371,7 +371,7 @@ void handleWebRequest() {
 				}
 
 				// /timer/{channel}/{seconds}
-				else if (strncmp(resource, "timer", 8) == 0) {
+				else if (strncmp(resource, "timer", 5) == 0) {
 
 					if(param1 == NULL || param1 == "") {
 						Serial.println("parameter required");
@@ -418,7 +418,7 @@ void handleWebRequest() {
 				}
 
 				// /switch/{channel}/{position}     1 = on, else off
-				else if (strncmp(resource, "switch", 7) == 0) {
+				else if (strncmp(resource, "switch", 6) == 0) {
 
 					bool valid = false;
 					int channel = atoi(param1);
@@ -495,7 +495,7 @@ void handleWebRequest() {
 				}
 
 				// /sys
-				else if (strncmp(resource, "sys", 6) == 0) {
+				else if (strncmp(resource, "sys", 3) == 0) {
 
 					strcpy(json, json_bracket_open);
 
