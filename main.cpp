@@ -3,9 +3,10 @@
 #include <stdlib.h>
 #include "EEPROM.h"
 
-#define DEBUG 0
+#define DEBUG 1
 #define EEPROM_DEBUG 1
 #define BUFSIZE 255
+#define CHANNEL_SIZE 14
 
 extern int  __bss_end;
 extern int  *__brkval;
@@ -25,17 +26,19 @@ const char string_switch_on[] PROGMEM = "Switching on";
 const char string_switch_off[] PROGMEM = "Switching off";
 const char string_json_key_mem[] PROGMEM = "\"mem\":";
 const char string_json_key_uptime[] PROGMEM = ",\"uptime\":";
-const char string_json_key_channels[] PROGMEM = ",\"channels\":{";
+const char string_json_key_channels[] PROGMEM = ",\"channels\":[";
 const char string_json_key_channel[] PROGMEM = "\"channel\":";
 const char string_json_key_pin[] PROGMEM = ",\"pin\":";
 const char string_json_key_position[] PROGMEM =  ",\"position\":";
 const char string_json_key_value[] PROGMEM =  ",\"value\":";
 const char string_json_key_address[] PROGMEM =  "\"address\":";
-const char string_json_bracket_open[] PROGMEM = "{";
-const char string_json_bracket_close[] PROGMEM = "}";
-const char string_json_error_invalid_channel[] PROGMEM = "{\"error\":\"Invalid channel\"}";
-const char string_json_reboot_true PROGMEM = "{\"reboot\":true}";
-const char string_json_reset_true PROGMEM = "{\"reset\":true}";
+const char string_json_key_bracket_open[] PROGMEM = "{";
+const char string_json_key_bracket_close[] PROGMEM = "}";
+const char string_json_error_invalid_channel[] PROGMEM = "\"error\":\"Invalid channel\"";
+const char string_json_reboot_true PROGMEM = "\"reboot\":true";
+const char string_json_reset_true PROGMEM = "\"reset\":true";
+const char string_hardware_version[] PROGMEM = "\"hardware\":\"doser-v0.5a\",";
+const char string_firmware_version[] PROGMEM = "\"firmware\":\"0.0.3a\"";
 const char * const string_table[] PROGMEM = {
   string_initializing,
   string_dhcp_failed,
@@ -55,11 +58,13 @@ const char * const string_table[] PROGMEM = {
   string_json_key_position,
   string_json_key_value,
   string_json_key_address,
-  string_json_bracket_open,
-  string_json_bracket_close,
+  string_json_key_bracket_open,
+  string_json_key_bracket_close,
   string_json_error_invalid_channel,
   string_json_reboot_true,
-  string_json_reset_true
+  string_json_reset_true,
+  string_hardware_version,
+  string_firmware_version
 };
 int idx_initializing = 0,
     idx_dhcp_failed = 1,
@@ -83,7 +88,9 @@ int idx_initializing = 0,
 	idx_json_key_bracket_close = 19,
 	idx_json_error_invalid_channel = 20,
 	idx_json_reboot_true = 21,
-	idx_json_reset_true = 22;
+	idx_json_reset_true = 22,
+	idx_hardware_version = 23,
+	idx_firmware_version = 24;
 char string_buffer[50];
 char float_buffer[10];
 
@@ -115,14 +122,11 @@ EthernetServer httpServer(80);
 EthernetClient httpClient;
 
 const int NULL_CHANNEL = 255;
-const int channel_size = 16;
-const uint8_t channels[channel_size] = {
+const uint8_t channels[CHANNEL_SIZE] = {
 	2, 3, 4, 5, 6, 7, 8, 9,
-	A0, A1, A2, A3, A4, A5, A6, A7
-	//19, 20, 21, 22, 23, 24, 25, 26
+	A0, A1, A2, A3, A4, A5
 };
-
-unsigned long channel_table[channel_size][3] = {
+unsigned long channel_table[CHANNEL_SIZE][3] = {
 	// channel, start, interval
    {NULL_CHANNEL, 0, 0},
    {NULL_CHANNEL, 0, 0},
@@ -137,9 +141,7 @@ unsigned long channel_table[channel_size][3] = {
    {NULL_CHANNEL, 0, 0},
    {NULL_CHANNEL, 0, 0},
    {NULL_CHANNEL, 0, 0},
-   {NULL_CHANNEL, 0, 0},
-   {NULL_CHANNEL, 0, 0},
-   {NULL_CHANNEL, 0, 0}
+   {NULL_CHANNEL, 0, 0} // 14
 };
 
 int main(void) {
@@ -165,7 +167,7 @@ void setup(void) {
 
   analogReference(DEFAULT);
 
-  for(int i=0; i<channel_size; i++) {
+  for(int i=0; i<CHANNEL_SIZE; i++) {
     pinMode(channels[i], OUTPUT);
     digitalWrite(channels[i], LOW);
   }
@@ -239,7 +241,7 @@ void handleWebRequest() {
 
 	unsigned long currentMillis = millis();
 
-	for(int i=0; i<channel_size; i++) {
+	for(int i=0; i<CHANNEL_SIZE; i++) {
 		if(channel_table[i][0] != NULL_CHANNEL) {
 			if(currentMillis - channel_table[i][1] > channel_table[i][2]) {
 
@@ -321,21 +323,21 @@ void handleWebRequest() {
 
 					  strcpy_P(string_buffer, (char*)pgm_read_word(&(string_table[idx_json_key_channels])));
 					  strcat(json, string_buffer);
-						for(int i=0; i<channel_size; i++) {
+						for(int i=0; i<CHANNEL_SIZE; i++) {
 						  //itoa(channels[i], sPin, 10);
 						  itoa(digitalRead(channels[i]), state, 10);
-
+/*
 						  strcat(json, "\"");
 						  itoa(i, float_buffer, 10);
 						  strcat(json, float_buffer);
 						  strcat(json, "\":");
-
+*/
 						  strcat(json, state);
-						  if(i + 1 < channel_size) {
+						  if(i + 1 < CHANNEL_SIZE) {
 							  strcat(json, ",");
 						  }
 						}
-					  strcat(json, "}");
+					  strcat(json, "]");
 
 					strcat(json, "}");
 				}
@@ -376,7 +378,7 @@ void handleWebRequest() {
 					int channel = atoi(param1);
 					unsigned long duration = strtoul(param2, NULL, 10);
 
-					if(channel >= 0 && channel < (channel_size -1) && duration > 0) {
+					if(channel >= 0 && channel < (CHANNEL_SIZE -1) && duration > 0) {
 
 						#if DEBUG
 						  Serial.print("Channel: ");
@@ -418,51 +420,43 @@ void handleWebRequest() {
 					int channel = atoi(param1);
 					int position = atoi(param2);
 
-					if(channel >= 0 && channel < (channel_size-1)) {
+					if(channel >= 0 && channel <= (CHANNEL_SIZE-1)) {
 						valid = true;
 					}
 
 					if(valid) {
 
-						bool valid = false;
-						int channel = atoi(param1);
-						int position = atoi(param2);
+						position == 1 ? switchOn(channels[channel]) : switchOff(channels[channel]);
 
-						if(channel >= 0 && channel < (channel_size-1)) {
-							valid = true;
-						}
+						strcpy(json, json_bracket_open);
 
-						if(valid) {
+						  strcpy_P(string_buffer, (char*)pgm_read_word(&(string_table[idx_json_key_channel])));
+						  strcat(json, string_buffer);
+						  strcat(json, param1);
 
-							position == 1 ? switchOn(channels[channel]) : switchOff(channels[channel]);
+						  strcpy_P(string_buffer, (char*)pgm_read_word(&(string_table[idx_json_key_pin])));
+						  strcat(json, string_buffer);
+						  itoa(channels[channel], string_buffer, 10);
+						  strcat(json, string_buffer);
 
-							strcpy(json, json_bracket_open);
+						  strcpy_P(string_buffer, (char*)pgm_read_word(&(string_table[idx_json_key_position])));
+						  strcat(json, string_buffer);
+						  itoa(digitalRead(channels[channel]), string_buffer, 10);
+						  strcat(json, string_buffer);
 
-							  strcpy_P(string_buffer, (char*)pgm_read_word(&(string_table[idx_json_key_channel])));
-							  strcat(json, string_buffer);
-							  strcat(json, param1);
+						strcat(json, json_bracket_close);
 
-							  strcpy_P(string_buffer, (char*)pgm_read_word(&(string_table[idx_json_key_pin])));
-							  strcat(json, string_buffer);
-							  itoa(channels[channel], string_buffer, 10);
-							  strcat(json, string_buffer);
+						#if DEBUG
+							Serial.print("/switch: ");
+							Serial.println(json);
+						#endif
 
-							  strcpy_P(string_buffer, (char*)pgm_read_word(&(string_table[idx_json_key_position])));
-							  strcat(json, string_buffer);
-							  itoa(digitalRead(channels[channel]), string_buffer, 10);
-							  strcat(json, string_buffer);
-
-							strcat(json, json_bracket_close);
-
-							#if DEBUG
-								Serial.print("/switch: ");
-								Serial.println(json);
-							#endif
-						}
-						else {
+					}
+					else {
+						strcpy(json, json_bracket_open);
 							strcpy_P(string_buffer, (char*)pgm_read_word(&(string_table[idx_json_error_invalid_channel])));
 							strcat(json, string_buffer);
-						}
+						strcat(json, json_bracket_close);
 					}
 				}
 
@@ -471,7 +465,12 @@ void handleWebRequest() {
 					#if DEBUG
 					  Serial.println("/reboot");
 					#endif
-					strcpy(json, "{\"reboot\":true}");
+
+					strcpy(json, json_bracket_open);
+						strcpy_P(string_buffer, (char*)pgm_read_word(&(string_table[idx_json_reboot_true])));
+						strcat(json, string_buffer);
+					strcat(json, json_bracket_close);
+
 					reboot = true;
 				}
 
@@ -483,8 +482,31 @@ void handleWebRequest() {
 
 					resetDefaults();
 
-					strcpy_P(string_buffer, (char*)pgm_read_word(&(string_table[idx_json_reset_true])));
-					strcat(json, string_buffer);
+					strcpy(json, json_bracket_open);
+						strcpy_P(string_buffer, (char*)pgm_read_word(&(string_table[idx_json_reset_true])));
+						strcat(json, string_buffer);
+					strcat(json, json_bracket_close);
+
+					reboot = true;
+				}
+
+				// /sys
+				else if (strncmp(resource, "sys", 6) == 0) {
+
+					strcpy(json, json_bracket_open);
+
+						strcpy_P(string_buffer, (char*)pgm_read_word(&(string_table[idx_hardware_version])));
+						strcat(json, string_buffer);
+
+						strcpy_P(string_buffer, (char*)pgm_read_word(&(string_table[idx_firmware_version])));
+						strcat(json, string_buffer);
+
+						strcpy_P(string_buffer, (char*)pgm_read_word(&(string_table[idx_json_key_uptime])));
+						strcat(json, string_buffer);
+						itoa(millis(), string_buffer, 10);
+					    strcat(json, string_buffer);
+
+					strcat(json, json_bracket_close);
 				}
 
 				else {
@@ -520,6 +542,7 @@ void handleWebRequest() {
 
 	if(reboot)  {
 	  resetFunc();
+	  return;
 	}
 }
 
