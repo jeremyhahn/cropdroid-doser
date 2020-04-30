@@ -3,7 +3,7 @@
 #include <stdlib.h>
 #include "EEPROM.h"
 
-#define DEBUG 1
+#define DEBUG 0
 #define EEPROM_DEBUG 1
 #define BUFSIZE 255
 #define CHANNEL_SIZE 14
@@ -180,7 +180,7 @@ void setup(void) {
   byte macByte1 = EEPROM.read(0);
 
   #if DEBUG || EEPROM_DEBUG
-	Serial.print("EEPROM.read(0): ");
+	Serial.print("macByte1: ");
 	Serial.println(macByte1);
   #endif
 
