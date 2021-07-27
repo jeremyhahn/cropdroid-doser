@@ -40,8 +40,8 @@ const char string_json_key_bracket_close[] PROGMEM = "}";
 const char string_json_error_invalid_channel[] PROGMEM = "\"error\":\"Invalid channel\"";
 const char string_json_reboot_true PROGMEM = "\"reboot\":true";
 const char string_json_reset_true PROGMEM = "\"reset\":true";
-const char string_hardware_version[] PROGMEM = "\"hardware\":\"doser-v0.5a\",";
-const char string_firmware_version[] PROGMEM = "\"firmware\":\"0.0.3a\"";
+const char string_hardware_version[] PROGMEM = "\"hardware\":\"doser-v0.6a\",";
+const char string_firmware_version[] PROGMEM = "\"firmware\":\"0.0.4a\"";
 const char * const string_table[] PROGMEM = {
   string_initializing,
   string_dhcp_failed,
@@ -271,7 +271,7 @@ void handleWebRequest() {
 
 	httpClient = httpServer.available();
 
-	char clientline[BUFSIZE];
+	char clientline[BUFSIZE] = {0};
 	int index = 0;
 
 	bool reboot = false;
@@ -381,7 +381,7 @@ void handleWebRequest() {
 					int channel = atoi(param1);
 					unsigned long duration = strtoul(param2, NULL, 10);
 
-					if(channel >= 0 && channel < (CHANNEL_SIZE -1) && duration > 0) {
+					if(channel >= 0 && channel < CHANNEL_SIZE && duration > 0) {
 
 						#if DEBUG
 						  Serial.print("Channel: ");
@@ -423,7 +423,7 @@ void handleWebRequest() {
 					int channel = atoi(param1);
 					int position = atoi(param2);
 
-					if(channel >= 0 && channel <= (CHANNEL_SIZE-1)) {
+					if(channel >= 0 && channel < CHANNEL_SIZE) {
 						valid = true;
 					}
 
