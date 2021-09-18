@@ -1,6 +1,6 @@
-ORG := jeremyhahn
-PACKAGE := harvest.nutes
-TARGET_OS := linux
+
+AVRDUDE=/home/jhahn/.arduino15/packages/arduino/tools/avrdude/6.3.0-arduino14/bin/avrdude
+CONF=-C/home/jhahn/.arduino15/packages/arduino/tools/avrdude/6.3.0-arduino14/etc/avrdude.
 
 .PHONY: clean flash-usbasp flash-mega monitor
 
@@ -20,3 +20,7 @@ flash-mega:
 
 monitor:
 	screen /dev/ttyUSB0 115200
+
+bootloader:
+	$(AVRDUDE) $(CONF) -v -patmega328p -cusbasp -Pusb -e -Ulock:w:0x3F:m -Uefuse:w:0xFD:m -Uhfuse:w:0xDA:m -Ulfuse:w:0xFF:m
+	$(AVRDUDE) $(CONF) -v -patmega328p -cusbasp -Pusb -Uflash:w:bootloader/optiboot_atmega328.hex:i -Ulock:w:0x0F:m
