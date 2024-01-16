@@ -1,6 +1,8 @@
 # cropdroid-doser
 
-[<img src="cropdroid-dosing-controller.png">](https://github.com/jeremyhahn/cropdroid-doser)
+[<img src="images/cropdroid-dosing-controller.png">](https://github.com/jeremyhahn/cropdroid-doser)
+
+[<img src="images/flow.jpg">](https://github.com/jeremyhahn/cropdroid-doser)
 
 Dosing / nutrient controller for the CropDroid automation system.
 
