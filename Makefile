@@ -9,6 +9,9 @@ default: clean flash-serial monitor
 clean:
 	rm -rf build/
 
+download:
+	avrdude -pm328p -cusbasp -u -U flash:r:flash.hex:i # save flash as "flash.hex", in Intel format
+
 flash-usbasp:
 	avrdude -c usbasp -p m328p -u -U flash:w:build/Nano/cropdroid-doser.hex
 
